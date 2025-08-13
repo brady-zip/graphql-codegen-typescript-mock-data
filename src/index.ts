@@ -34,6 +34,7 @@ type Options<T = TypeNode> = {
     defaultNullableToNull: boolean;
     nonNull: boolean;
     typeNamesMapping?: Record<string, string>;
+    inputOneOfTypes: Set<string>;
 };
 
 const getTerminateCircularRelationshipsConfig = ({ terminateCircularRelationships }: TypescriptMocksPluginConfig) =>
@@ -409,7 +410,8 @@ const getNamedType = (opts: Options<NamedTypeNode | ObjectTypeDefinitionNode>): 
                         throw `foundType is unknown: ${foundType.name}: ${foundType.type}`;
                 }
             }
-            if (opts.terminateCircularRelationships) {
+
+            if (opts.terminateCircularRelationships && !opts.inputOneOfTypes.has(opts.currentType.name.value)) {
                 return handleValueGeneration(opts, null, () => {
                     if (opts.typesPrefix) {
                         const typeNameConverter = createNameConverter(
@@ -687,6 +689,7 @@ export const plugin: PluginFunction<TypescriptMocksPluginConfig> = (schema, docu
 
     // List of types that are enums
     const types: TypeItem[] = [];
+    const inputOneOfTypes: Set<string> = new Set();
     const typeVisitor: VisitorType = {
         EnumTypeDefinition: (node) => {
             const name = node.name.value;
@@ -723,6 +726,11 @@ export const plugin: PluginFunction<TypescriptMocksPluginConfig> = (schema, docu
                 }
             }
         },
+        InputObjectTypeDefinition: (node) => {
+            if (node.directives.some((directive) => directive.name.value === 'oneOf')) {
+                inputOneOfTypes.add(node.name.value);
+            }
+        },
         ScalarTypeDefinition: (node) => {
             const name = node.name.value;
             if (!types.find((scalarType) => scalarType.name === name)) {
@@ -755,6 +763,7 @@ export const plugin: PluginFunction<TypescriptMocksPluginConfig> = (schema, docu
         typesPrefix: config.typesPrefix,
         useImplementingTypes,
         useTypeImports,
+        inputOneOfTypes,
     };
 
     const visitor: VisitorType = {
