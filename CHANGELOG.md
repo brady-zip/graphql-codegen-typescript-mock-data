@@ -1,3 +1,15 @@
+# v5.0.2 (Wed Aug 13 2025)
+
+#### 🐛 Bug Fix
+
+- Fix type errors in generated code for nested input objects with @oneOf directive [#194](https://github.com/ardeois/graphql-codegen-typescript-mock-data/pull/194) (dcal@atlassian.com)
+
+#### Authors: 1
+
+- Daniel Playfair Cal ([@hedgepigdaniel](https://github.com/hedgepigdaniel))
+
+---
+
 # v5.0.1 (Sat Jul 19 2025)
 
 #### 🐛 Bug Fix
