@@ -257,6 +257,9 @@ const handleValueGeneration = (
     customScalar: GeneratorDefinition,
     baseGenerator: () => void,
 ) => {
+    if (opts.defaultNullableToNull && !opts.nonNull) {
+        return null;
+    }
     if (opts.fieldGeneration) {
         // Check for a specific generation for the type & field
         if (opts.typeName in opts.fieldGeneration && opts.fieldName in opts.fieldGeneration[opts.typeName]) {
@@ -277,9 +280,6 @@ const handleValueGeneration = (
     }
     if (customScalar) {
         return getCustomValue(customScalar, opts);
-    }
-    if (opts.defaultNullableToNull && !opts.nonNull) {
-        return null;
     }
     return baseGenerator();
 };
